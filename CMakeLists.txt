@@ -23,3 +23,6 @@ add_executable(sample_pipeline_test sample_pipeline_test.cpp)
 target_link_libraries(sample_pipeline_test sample_pipeline sample_writer ${ARMADILLO_LIBRARIES} ${Boost_LIBRARIES})
 
 add_test(NAME sample_pipeline_test COMMAND sample_pipeline_test)
+
+add_executable(uhd_sample_recorder uhd_sample_recorder.cpp)
+target_link_libraries(uhd_sample_recorder sample_pipeline sample_writer ${Boost_LIBRARIES} ${UHD_LIBRARIES})
