@@ -263,7 +263,6 @@ int parse_args(int argc, char* argv[])
         ("vkfft_batches", po::value<size_t>(&batches)->default_value(100), "vkFFT batches")
         ("vkfft_sample_id", po::value<size_t>(&sample_id)->default_value(0), "vkFFT sample_id")
         ("json", "take parameters from json on stdin");
-    po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, desc), vm);
     po::notify(vm);
 
