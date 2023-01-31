@@ -11,8 +11,8 @@ find_package(UHD 3.15.0 REQUIRED)
 find_package(Boost ${Boost_Version} COMPONENTS filesystem iostreams thread unit_test_framework program_options REQUIRED)
 
 add_library(vkfft vkfft.cpp)
-target_link_libraries(vkfft ${CMAKE_CURRENT_SOURCE_DIR}/VkFFT/build/glslang-master/glslang/libglslang.a ${CMAKE_CURRENT_SOURCE_DIR}/VkFFT/build/glslang-master/glslang/libMachineIndependent.a ${CMAKE_CURRENT_SOURCE_DIR}/VkFFT/build/glslang-master/glslang/OSDependent/Unix/libOSDependent.a ${CMAKE_CURRENT_SOURCE_DIR}/VkFFT/build/glslang-master/OGLCompilersDLL/libOGLCompiler.a ${CMAKE_CURRENT_SOURCE_DIR}/VkFFT/build/glslang-master/glslang/libGenericCodeGen.a ${CMAKE_CURRENT_SOURCE_DIR}/VkFFT/build/glslang-master/SPIRV/libSPIRV.a ${CMAKE_CURRENT_SOURCE_DIR}/VkFFT/build/CMakeFiles/Vulkan_FFT.dir/benchmark_scripts/vkFFT_scripts/src/utils_VkFFT.cpp.o)
-target_include_directories(vkfft PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/VkFFT/glslang-master/glslang/Include ${CMAKE_CURRENT_SOURCE_DIR}/VkFFT/glslang-master/glslang/Public ${CMAKE_CURRENT_SOURCE_DIR}/VkFFT/vkFFT ${CMAKE_CURRENT_SOURCE_DIR}/VkFFT/benchmark_scripts/vkFFT_scripts/include)
+target_link_libraries(vkfft ${CMAKE_CURRENT_SOURCE_DIR}/VkFFT/build/glslang-main/glslang/libglslang.a ${CMAKE_CURRENT_SOURCE_DIR}/VkFFT/build/glslang-main/glslang/libMachineIndependent.a ${CMAKE_CURRENT_SOURCE_DIR}/VkFFT/build/glslang-main/glslang/OSDependent/Unix/libOSDependent.a ${CMAKE_CURRENT_SOURCE_DIR}/VkFFT/build/glslang-main/OGLCompilersDLL/libOGLCompiler.a ${CMAKE_CURRENT_SOURCE_DIR}/VkFFT/build/glslang-main/glslang/libGenericCodeGen.a ${CMAKE_CURRENT_SOURCE_DIR}/VkFFT/build/glslang-main/SPIRV/libSPIRV.a ${CMAKE_CURRENT_SOURCE_DIR}/VkFFT/build/CMakeFiles/Vulkan_FFT.dir/benchmark_scripts/vkFFT_scripts/src/utils_VkFFT.cpp.o)
+target_include_directories(vkfft PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/VkFFT/glslang-main/glslang/Include ${CMAKE_CURRENT_SOURCE_DIR}/VkFFT/glslang-main/glslang/Public ${CMAKE_CURRENT_SOURCE_DIR}/VkFFT/vkFFT ${CMAKE_CURRENT_SOURCE_DIR}/VkFFT/benchmark_scripts/vkFFT_scripts/include)
 
 add_library(sample_writer sample_writer.cpp)
 
