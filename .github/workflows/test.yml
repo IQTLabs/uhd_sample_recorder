@@ -1,10 +1,19 @@
 name: test
 on: [push, pull_request]
 jobs:
+  test-clang-format:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+    - name: clang-format 
+      run: |
+        sudo apt-get -yq update && sudo apt-get -yq install clang-format python3-pip && pip3 install cmake_format && ./bin/run_c_format.sh lib
   test:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
     - name: test
       run: |
-        ./install-deps.sh && ./build.sh && ./test.sh
+        ./bin/install-deps.sh && ./bin/build.sh && ./bin/test.sh
