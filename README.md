@@ -31,6 +31,7 @@ This works on both Raspberry Pi OS (Debian) and Ubuntu.
 ## build
 
 ```
-./install-deps.sh
-./build.sh
+./bin/install-deps.sh
+./bin/build.sh
+./bin/test.sh
 ```
