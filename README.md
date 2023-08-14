@@ -12,9 +12,11 @@ $ ./uhd_sample_recorder --args num_recv_frames=960,recv_frame_size=16360,type=b2
 
 FFT points can be output along with samples. This example records 1s of samples at 10.24e6sps at 108MHz, writing compressed samples to test.ci16.zst and uncompressed FFT points to fft_test.raw.  Then, the points are plotted to an image output by plot_fft.py.
 
+```
 $ uhd_sample_recorder --args type=b200,num_recv_frames=960,recv_frame_size=16360 --duration 1 --rate 10240000 --freq 108e6 --gain 10 --type short --file test.ci16.zst --fft_file fft_test.raw --nfft 256
 $ pip install numpy matplotlib
 $ ./plot_fft.py
+```
 
 ## Vulkan FFT support
 

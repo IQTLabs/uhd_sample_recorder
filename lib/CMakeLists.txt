@@ -23,7 +23,7 @@ target_link_libraries(
   ${SRC_ROOT}/VkFFT/build/glslang-main/OGLCompilersDLL/libOGLCompiler.a
   ${SRC_ROOT}/VkFFT/build/glslang-main/glslang/libGenericCodeGen.a
   ${SRC_ROOT}/VkFFT/build/glslang-main/SPIRV/libSPIRV.a
-  ${SRC_ROOT}/VkFFT/build/CMakeFiles/Vulkan_FFT.dir/benchmark_scripts/vkFFT_scripts/src/utils_VkFFT.cpp.o
+  ${SRC_ROOT}/VkFFT/build/CMakeFiles/VkFFT_TestSuite.dir/benchmark_scripts/vkFFT_scripts/src/utils_VkFFT.cpp.o
 )
 target_include_directories(
   vkfft
