@@ -236,7 +236,7 @@ void sample_pipeline_start(const std::string &file, const std::string &fft_file,
   offload = specgram_offload;
   if (useVkFFT) {
     offload = vkfft_specgram_offload;
-    init_vkfft(batches, sample_id, nfft);
+    init_vkfft(batches, nfft, sample_id);
   }
   max_samples = max_samples_;
   max_buffer_size = max_samples * samp_size;
