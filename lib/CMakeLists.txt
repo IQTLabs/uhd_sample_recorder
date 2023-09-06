@@ -6,6 +6,7 @@ set(SRC_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/..")
 include(FindPkgConfig)
 include(CTest)
 
+# TODO: use find_package(SPIRV-Tools) when supported.
 find_package(Vulkan REQUIRED)
 find_package(Armadillo REQUIRED)
 find_package(UHD 3.15.0 REQUIRED)
@@ -24,7 +25,8 @@ target_link_libraries(
   ${SRC_ROOT}/VkFFT/build/glslang-main/glslang/libGenericCodeGen.a
   ${SRC_ROOT}/VkFFT/build/glslang-main/SPIRV/libSPIRV.a
   ${SRC_ROOT}/VkFFT/build/CMakeFiles/VkFFT_TestSuite.dir/benchmark_scripts/vkFFT_scripts/src/utils_VkFFT.cpp.o
-)
+  ${SRC_ROOT}/SPIRV-Tools/build/source/opt/libSPIRV-Tools-opt.a
+  ${SRC_ROOT}/SPIRV-Tools/build/source/libSPIRV-Tools.a)
 target_include_directories(
   vkfft
   PUBLIC ${SRC_ROOT}/VkFFT/glslang-main/glslang/Include
