@@ -35,6 +35,7 @@ build/
 sigpack*
 json.hpp
 VkFFT
+SPIRV-Tools
 *~
 *\#
 *.swp
