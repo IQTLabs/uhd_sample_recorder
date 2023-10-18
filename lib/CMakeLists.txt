@@ -25,8 +25,7 @@ target_link_libraries(
   ${SRC_ROOT}/VkFFT/build/glslang-main/glslang/libGenericCodeGen.a
   ${SRC_ROOT}/VkFFT/build/glslang-main/SPIRV/libSPIRV.a
   ${SRC_ROOT}/VkFFT/build/CMakeFiles/VkFFT_TestSuite.dir/benchmark_scripts/vkFFT_scripts/src/utils_VkFFT.cpp.o
-  ${SRC_ROOT}/SPIRV-Tools/build/source/opt/libSPIRV-Tools-opt.a
-  ${SRC_ROOT}/SPIRV-Tools/build/source/libSPIRV-Tools.a)
+)
 target_include_directories(
   vkfft
   PUBLIC ${SRC_ROOT}/VkFFT/glslang-main/glslang/Include
