@@ -15,22 +15,17 @@ static VkDeviceMemory stagingBufferMemory = {0};
 static uint64_t fftBufferSize = 0;
 static uint64_t stagingBufferSize = 0;
 
-VkFFTResult _transferDataFromCPU(char *cpu_arr, std::size_t transferSize) {
+VkFFTResult _setupCopy(VkCommandBuffer &commandBuffer,
+                       VkBufferCopy &copyRegion) {
   VkResult res = VK_SUCCESS;
-  VkBuffer *buffer = &vkConfiguration.buffer[0];
-  char *data;
-  res = vkMapMemory(vkGPU.device, stagingBufferMemory, 0, transferSize, 0,
-                    (void **)&data);
-  if (res != VK_SUCCESS)
-    return VKFFT_ERROR_MALLOC_FAILED;
-  memcpy(data, cpu_arr, transferSize);
-  vkUnmapMemory(vkGPU.device, stagingBufferMemory);
+  copyRegion.srcOffset = 0;
+  copyRegion.dstOffset = 0;
+  copyRegion.size = stagingBufferSize;
   VkCommandBufferAllocateInfo commandBufferAllocateInfo = {
       VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO};
   commandBufferAllocateInfo.commandPool = vkGPU.commandPool;
   commandBufferAllocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
   commandBufferAllocateInfo.commandBufferCount = 1;
-  VkCommandBuffer commandBuffer = {0};
   res = vkAllocateCommandBuffers(vkGPU.device, &commandBufferAllocateInfo,
                                  &commandBuffer);
   if (res != VK_SUCCESS)
@@ -41,12 +36,11 @@ VkFFTResult _transferDataFromCPU(char *cpu_arr, std::size_t transferSize) {
   res = vkBeginCommandBuffer(commandBuffer, &commandBufferBeginInfo);
   if (res != VK_SUCCESS)
     return VKFFT_ERROR_FAILED_TO_BEGIN_COMMAND_BUFFER;
-  VkBufferCopy copyRegion = {0};
-  copyRegion.srcOffset = 0;
-  copyRegion.dstOffset = 0;
-  copyRegion.size = transferSize;
-  vkCmdCopyBuffer(commandBuffer, stagingBuffer, buffer[0], 1, &copyRegion);
-  res = vkEndCommandBuffer(commandBuffer);
+  return VKFFT_SUCCESS;
+}
+
+VkFFTResult _runCopy(VkCommandBuffer &commandBuffer) {
+  VkResult res = vkEndCommandBuffer(commandBuffer);
   if (res != VK_SUCCESS)
     return VKFFT_ERROR_FAILED_TO_END_COMMAND_BUFFER;
   VkSubmitInfo submitInfo = {VK_STRUCTURE_TYPE_SUBMIT_INFO};
@@ -65,48 +59,42 @@ VkFFTResult _transferDataFromCPU(char *cpu_arr, std::size_t transferSize) {
   return VKFFT_SUCCESS;
 }
 
+VkFFTResult _transferDataFromCPU(char *cpu_arr, std::size_t transferSize) {
+  VkResult res = VK_SUCCESS;
+  VkBuffer *buffer = &vkConfiguration.buffer[0];
+  char *data;
+  res = vkMapMemory(vkGPU.device, stagingBufferMemory, 0, transferSize, 0,
+                    (void **)&data);
+  if (res != VK_SUCCESS)
+    return VKFFT_ERROR_MALLOC_FAILED;
+  memcpy(data, cpu_arr, transferSize);
+  vkUnmapMemory(vkGPU.device, stagingBufferMemory);
+  VkCommandBuffer commandBuffer = {0};
+  VkBufferCopy copyRegion = {0};
+  VkFFTResult setup_res = _setupCopy(commandBuffer, copyRegion);
+  if (setup_res != VKFFT_SUCCESS) {
+    return setup_res;
+  }
+  vkCmdCopyBuffer(commandBuffer, stagingBuffer, buffer[0], 1, &copyRegion);
+  return _runCopy(commandBuffer);
+}
+
 VkFFTResult _transferDataToCPU(char *cpu_arr, std::size_t transferSize) {
   // a function that transfers data from the GPU to the CPU using staging
   // buffer, because the GPU memory is not host-coherent
   VkResult res = VK_SUCCESS;
   VkBuffer *buffer = &vkConfiguration.buffer[0];
-  VkCommandBufferAllocateInfo commandBufferAllocateInfo = {
-      VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO};
-  commandBufferAllocateInfo.commandPool = vkGPU.commandPool;
-  commandBufferAllocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-  commandBufferAllocateInfo.commandBufferCount = 1;
   VkCommandBuffer commandBuffer = {0};
-  res = vkAllocateCommandBuffers(vkGPU.device, &commandBufferAllocateInfo,
-                                 &commandBuffer);
-  if (res != VK_SUCCESS)
-    return VKFFT_ERROR_FAILED_TO_ALLOCATE_COMMAND_BUFFERS;
-  VkCommandBufferBeginInfo commandBufferBeginInfo = {
-      VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO};
-  commandBufferBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-  res = vkBeginCommandBuffer(commandBuffer, &commandBufferBeginInfo);
-  if (res != VK_SUCCESS)
-    return VKFFT_ERROR_FAILED_TO_BEGIN_COMMAND_BUFFER;
   VkBufferCopy copyRegion = {0};
-  copyRegion.srcOffset = 0;
-  copyRegion.dstOffset = 0;
-  copyRegion.size = transferSize;
+  VkFFTResult setup_res = _setupCopy(commandBuffer, copyRegion);
+  if (setup_res != VKFFT_SUCCESS) {
+    return setup_res;
+  }
   vkCmdCopyBuffer(commandBuffer, buffer[0], stagingBuffer, 1, &copyRegion);
-  res = vkEndCommandBuffer(commandBuffer);
-  if (res != VK_SUCCESS)
-    return VKFFT_ERROR_FAILED_TO_END_COMMAND_BUFFER;
-  VkSubmitInfo submitInfo = {VK_STRUCTURE_TYPE_SUBMIT_INFO};
-  submitInfo.commandBufferCount = 1;
-  submitInfo.pCommandBuffers = &commandBuffer;
-  res = vkQueueSubmit(vkGPU.queue, 1, &submitInfo, vkGPU.fence);
-  if (res != VK_SUCCESS)
-    return VKFFT_ERROR_FAILED_TO_SUBMIT_QUEUE;
-  res = vkWaitForFences(vkGPU.device, 1, &vkGPU.fence, VK_TRUE, 100000000000);
-  if (res != VK_SUCCESS)
-    return VKFFT_ERROR_FAILED_TO_WAIT_FOR_FENCES;
-  res = vkResetFences(vkGPU.device, 1, &vkGPU.fence);
-  if (res != VK_SUCCESS)
-    return VKFFT_ERROR_FAILED_TO_RESET_FENCES;
-  vkFreeCommandBuffers(vkGPU.device, vkGPU.commandPool, 1, &commandBuffer);
+  VkFFTResult copy_res = _runCopy(commandBuffer);
+  if (copy_res != VKFFT_SUCCESS) {
+    return copy_res;
+  }
   char *data;
   res = vkMapMemory(vkGPU.device, stagingBufferMemory, 0, transferSize, 0,
                     (void **)&data);
@@ -220,7 +208,9 @@ int64_t init_vkfft(std::size_t batches, std::size_t nfft,
     return resFFT;
 
   resFFT = allocateBuffer(&vkGPU, &stagingBuffer, &stagingBufferMemory,
-                          VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                          VK_BUFFER_USAGE_STORAGE_BUFFER_BIT |
+                              VK_BUFFER_USAGE_TRANSFER_SRC_BIT |
+                              VK_BUFFER_USAGE_TRANSFER_DST_BIT,
                           VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
                               VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
                           stagingBufferSize);
